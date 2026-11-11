@@ -559,11 +559,12 @@ summary:hover { color: var(--dim); }
   <div class="login-card">
     <div class="login-logo">🗓</div>
     <h2>Iolo's Plan</h2>
-    <p class="login-sub">Sign in with your usual account to sync your planner across all your devices.</p>
+    <p class="login-sub">Syncs your planner across all your devices. First time: create your account. After that, just sign in.</p>
     <input id="li-email" type="email" placeholder="Email" autocomplete="username" autocapitalize="off" spellcheck="false">
     <input id="li-pass" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')planSignIn()">
     <div class="login-btns">
       <button class="login-go" onclick="planSignIn()">Sign in</button>
+      <button class="login-ghost" onclick="planSignUp()">Create account</button>
     </div>
     <div id="li-msg" class="login-msg"></div>
   </div>
