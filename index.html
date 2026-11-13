@@ -572,6 +572,15 @@ summary:hover { color: var(--dim); }
   </div>
 </div>
 
+<!-- ═══ LOADING SHIELD — covers the blank-default paint until cloud data is adopted ═══ -->
+<div id="boot-ovl" class="login-ovl">
+  <div class="login-card">
+    <div class="login-logo">🗓</div>
+    <h2>Iolo's Plan</h2>
+    <p class="login-sub">Loading your planner…</p>
+  </div>
+</div>
+
 <h1>Iolo's Plan <span id="sync-dot" class="sync-dot" title="Cloud sync"></span></h1>
 <div class="subtitle" id="subtitle"></div>
 <div id="acct-bar" hidden><span id="acct-email"></span><span class="acct-out" onclick="planSignOut()">sign out</span></div>
@@ -1083,7 +1092,7 @@ function pendingSyncCount(){ return getEventsRaw().filter(e=>e.pendingSync).leng
 /* async: pull the cloud row; newer timestamp wins; never blocks or throws.
    If the cloud row is empty (first run), import once from the old Mac server. */
 function _serverLoad(){
-  const finish=()=>{ _booted=true; try{ ensureAutoPlan(); }catch(e){} refreshAll(); };
+  const finish=()=>{ _booted=true; try{ ensureAutoPlan(); }catch(e){} refreshAll(); _hideBoot(); };  /* reveal the planner only AFTER cloud data is reconciled (no blank-default flash) */
   if(!_sb||!_user){ finish(); return; }                    /* signed out / offline: local only */
   _sb.from("plan_state").select("state").eq("user_id",_user.id).maybeSingle()
     .then(async ({data,error})=>{
@@ -3828,12 +3837,14 @@ async function _authBoot(){
   _sb.auth.onAuthStateChange((_ev,sess)=>{
     const was=_user?_user.id:null, now=sess?sess.user.id:null;
     _user=sess?sess.user:null;
-    if(now&&now!==was){ _hideLogin(); _booted=false; _serverLoad(); }
+    if(now&&now!==was){ _hideLogin(); _showBoot(); _booted=false; _serverLoad(); }
     else if(!now){ _showLogin(); }
   });
   if(_user){ _hideLogin(); _serverLoad(); } else { _showLogin(); }
 }
-function _showLogin(){ const o=document.getElementById("login-ovl"); if(o) o.hidden=false; }
+function _showBoot(){ const o=document.getElementById("boot-ovl"); if(o) o.hidden=false; }
+function _hideBoot(){ const o=document.getElementById("boot-ovl"); if(o) o.hidden=true; }
+function _showLogin(){ _hideBoot(); const o=document.getElementById("login-ovl"); if(o) o.hidden=false; }
 function _hideLogin(){
   const o=document.getElementById("login-ovl"); if(o) o.hidden=true;
   const bar=document.getElementById("acct-bar"); if(bar) bar.hidden=!_user;
@@ -3873,6 +3884,7 @@ window.planSeed=async function(obj){
   }catch(e){ return "ERR: "+(e&&e.message); }
 };
 _authBoot();
+setTimeout(()=>{ try{ _hideBoot(); }catch(e){} }, 8000);  /* safety net: never leave the loading shield stuck */
 </script>
 </body>
 </html>
