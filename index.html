@@ -592,6 +592,7 @@ summary:hover { color: var(--dim); }
 <h1>Iolo's Plan <span id="sync-dot" class="sync-dot" title="Cloud sync"></span></h1>
 <div class="subtitle" id="subtitle"></div>
 <div id="acct-bar" hidden><span id="acct-email"></span><span class="acct-out" onclick="planSignOut()">sign out</span></div>
+<div id="diag" style="font:11px ui-monospace,monospace;color:#e0a05c;padding:3px 0;white-space:pre-wrap;word-break:break-word"></div>
 <div id="setwk-box"></div>
 <div class="stats" id="stats-strip"></div>
 <div id="review-host"></div>
@@ -984,6 +985,8 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
+const BUILD="2026-11-13d-inline";   /* bump each deploy; shown in #diag so we can tell which code a device is running */
+function _diag(m){ try{ const d=document.getElementById("diag"); if(d){ d.textContent=m; d.hidden=false; } }catch(e){} }
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
 if(/[?&]fresh\b/i.test(location.search)){ try{ localStorage.removeItem(MASTER); }catch(e){} try{ history.replaceState(null,"",location.pathname); }catch(e){} }
@@ -1107,8 +1110,9 @@ function _serverLoad(){
   if(!_sb||!_user){ finish(); return; }                    /* signed out / offline: local only */
   _sb.from("plan_state").select("state").eq("user_id",_user.id).maybeSingle()
     .then(async ({data,error})=>{
-      if(error){ finish(); return; }
+      if(error){ _diag("build "+BUILD+" · "+(_user?_user.email:"?")+" · cloud ERROR: "+error.message); finish(); return; }
       let raw = (data&&data.state&&Object.keys(data.state).length) ? data.state : null;
+      _diag("build "+BUILD+" · "+(_user?_user.email:"?")+" · cloud:"+(raw&&raw.tasks?Object.keys(raw.tasks).length:0)+"t _ts:"+(raw?raw._ts:"-")+" · local _ts:"+(_state._ts||0));
       if(!raw){                                            /* empty cloud → one-time import from old server */
         const imported=await _importOnce();
         if(imported){
@@ -3842,16 +3846,17 @@ if("Notification" in window && Notification.permission==="default"){ try{ Notifi
 
 /* ════════ AUTH — gate the cloud sync behind a Supabase sign-in ════════ */
 async function _authBoot(){
-  if(!_sb){ _showConnectError(); return; }            /* no cloud client → DON'T show the blank default; say so */
+  _diag("build "+BUILD+" · sb="+(!!_sb)+" · connecting…");
+  if(!_sb){ _diag("build "+BUILD+" · NO CLOUD CLIENT (config/CDN failed)"); _showConnectError(); return; }
   try{ const {data}=await _sb.auth.getSession(); _user=data&&data.session?data.session.user:null; }
   catch(e){ _user=null; }
   _sb.auth.onAuthStateChange((_ev,sess)=>{
     const was=_user?_user.id:null, now=sess?sess.user.id:null;
     _user=sess?sess.user:null;
-    if(now&&now!==was){ _hideLogin(); _showBoot(); _booted=false; _serverLoad(); }
-    else if(!now){ _showLogin(); }
+    if(now&&now!==was){ _diag("build "+BUILD+" · in: "+_user.email+" · loading cloud…"); _hideLogin(); _showBoot(); _booted=false; _serverLoad(); }
+    else if(!now){ _diag("build "+BUILD+" · signed out"); _showLogin(); }
   });
-  if(_user){ _hideLogin(); _serverLoad(); } else { _showLogin(); }
+  if(_user){ _diag("build "+BUILD+" · in: "+_user.email+" · loading cloud…"); _hideLogin(); _serverLoad(); } else { _diag("build "+BUILD+" · not signed in"); _showLogin(); }
 }
 function _showBoot(){ const o=document.getElementById("boot-ovl"); if(o) o.hidden=false; }
 function _showConnectError(){
