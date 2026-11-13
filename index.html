@@ -1051,7 +1051,7 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
-const BUILD="2026-11-13k-backtop2";   /* bump each deploy; logged to console so we can tell which code a device is running */
+const BUILD="2026-11-13l-backtop3";   /* bump each deploy; logged to console so we can tell which code a device is running */
 function _diag(m){ try{ console.log("[plan]", m); }catch(e){} }  /* console-only now; the on-screen #diag line was removed */
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
@@ -3980,7 +3980,9 @@ setTimeout(()=>{ try{ _hideBoot(); }catch(e){} }, 8000);  /* safety net: never l
 window.addEventListener("scroll", ()=>{ const b=document.getElementById("to-top"); if(b) b.classList.toggle("show", window.scrollY>420); }, {passive:true});
 /* reliable smooth scroll-to-top (behavior:'smooth' is flaky in some engines) */
 window._toTop=function(){ const y0=window.scrollY, t0=performance.now(), dur=320;
-  function step(t){ const p=Math.min((t-t0)/dur,1), e=p*(2-p); window.scrollTo(0, Math.round(y0*(1-e))); if(p<1) requestAnimationFrame(step); }
+  function step(t){ const p=Math.min((t-t0)/dur,1), e=p*(2-p); window.scrollTo(0, Math.round(y0*(1-e)));
+    if(p<1) requestAnimationFrame(step);
+    else { const b=document.getElementById("to-top"); if(b) b.classList.remove("show"); } }
   requestAnimationFrame(step); };
 </script>
 </body>
