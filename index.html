@@ -15,7 +15,15 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <!-- Cloud sync (Supabase) + config -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="assets/config.js"></script>
+<script>
+/* Config INLINED (not a separate cached file) so Safari/CDN can never serve a stale
+   placeholder config and silently drop the app into disconnected default mode. */
+window.PLAN_CONFIG = {
+  supabaseUrl: 'https://qlqafyxwqjegabeccfpw.supabase.co',
+  supabaseKey: 'sb_publishable_UJxuRtA88jduAqR23nJD2A_iSAXzeQT',
+  importFrom: 'http://localhost:3131/state'
+};
+</script>
 <style>
 :root {
   --bg:#0f0f13; --panel:#12121c; --card:#17171f; --card2:#1a1a28;
@@ -3834,7 +3842,7 @@ if("Notification" in window && Notification.permission==="default"){ try{ Notifi
 
 /* ════════ AUTH — gate the cloud sync behind a Supabase sign-in ════════ */
 async function _authBoot(){
-  if(!_sb){ _serverLoad(); return; }                 /* client unavailable → local-only */
+  if(!_sb){ _showConnectError(); return; }            /* no cloud client → DON'T show the blank default; say so */
   try{ const {data}=await _sb.auth.getSession(); _user=data&&data.session?data.session.user:null; }
   catch(e){ _user=null; }
   _sb.auth.onAuthStateChange((_ev,sess)=>{
@@ -3846,6 +3854,14 @@ async function _authBoot(){
   if(_user){ _hideLogin(); _serverLoad(); } else { _showLogin(); }
 }
 function _showBoot(){ const o=document.getElementById("boot-ovl"); if(o) o.hidden=false; }
+function _showConnectError(){
+  const o=document.getElementById("boot-ovl");
+  if(o){ o.hidden=false;
+    o.innerHTML='<div class="login-card"><div class="login-logo">🗓</div><h2>Iolo&#39;s Plan</h2>'
+      +'<p class="login-sub">Couldn&#39;t connect to your cloud planner. This usually clears with a reload — your data is safe on the server.</p>'
+      +'<div class="login-btns"><button class="login-go" onclick="location.reload()">Reload</button></div></div>';
+  }
+}
 function _hideBoot(){ const o=document.getElementById("boot-ovl"); if(o) o.hidden=true; }
 function _showLogin(){ _hideBoot(); const o=document.getElementById("login-ovl"); if(o) o.hidden=false; }
 function _hideLogin(){
