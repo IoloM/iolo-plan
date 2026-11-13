@@ -73,6 +73,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .main-cols { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; margin-top: 4px; }
 .main-cols .mc-col { min-width: 0; }
 @media (min-width: 1040px){ .main-cols { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 28px; } }
+/* calendar stays in view while scrolling the task list on wide screens */
+@media (min-width: 1040px){ .mc-cal { position: sticky; top: 14px; align-self: start; } }
+/* ── polish: soft hover lift + smooth transitions (additive, keeps subject colours) ── */
+.card { transition: background .14s ease, box-shadow .14s ease, transform .12s ease; }
+.card:hover { background: var(--card2); box-shadow: 0 2px 12px rgba(0,0,0,.22); }
+.stat-card { transition: border-color .14s ease, background .14s ease; }
+.stat-card:hover { border-color: var(--bord2); }
+.cal-nav-btn, .ft, .cvb, .task-tgl, .qadd, .log-add, .log-x, .sec-add { transition: background .14s ease, color .14s ease, border-color .14s ease; }
+.sec { margin: 26px 0 11px; }
 h1 { font-size: 1.2rem; font-weight: 800; color: var(--txt-strong); margin-bottom: 2px; }
 .subtitle { font-size: .73rem; color: var(--dim); margin-bottom: 18px; }
 .sec { font-size: .63rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--dim2); margin: 22px 0 9px; padding-bottom: 5px; border-bottom: 1px solid var(--line); }
@@ -994,7 +1003,7 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
-const BUILD="2026-11-13e-layout";   /* bump each deploy; logged to console so we can tell which code a device is running */
+const BUILD="2026-11-13f-polish";   /* bump each deploy; logged to console so we can tell which code a device is running */
 function _diag(m){ try{ console.log("[plan]", m); }catch(e){} }  /* console-only now; the on-screen #diag line was removed */
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
