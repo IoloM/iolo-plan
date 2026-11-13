@@ -252,6 +252,9 @@ details[open] > .sec-c::before { transform: rotate(90deg); }
 .tag.reminder { background: #1c1428; color: #8b6abf; }
 .due { font-size: .62rem; font-weight: 600; }
 .due.ov { color: #e85c5c; } .due.ur { color: #e85c5c; } .due.so { color: #d4aa30; } .due.ok { color: var(--muted); }
+.due.ov, .due.ur { background: #2a1113; padding: 1px 7px; border-radius: 10px; }
+.gsep-n { margin-left: 7px; color: var(--faint); font-weight: 800; background: var(--card2); padding: 1px 7px; border-radius: 10px; letter-spacing: 0; }
+.qadd:focus-visible, .more-toggle:focus-visible { outline: 2px solid #4a7abf; outline-offset: 1px; }
 .ef { font-size: .57rem; padding: 2px 6px; border-radius: 10px; }
 .ef.H { background: #2e1515; color: #e87c5c; }
 .ef.M { background: #1e2010; color: #a0b050; }
@@ -1066,7 +1069,7 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
-const BUILD="2026-11-13m-btnrow";   /* bump each deploy; logged to console so we can tell which code a device is running */
+const BUILD="2026-11-13n-polish";   /* bump each deploy; logged to console so we can tell which code a device is running */
 function _diag(m){ try{ console.log("[plan]", m); }catch(e){} }  /* console-only now; the on-screen #diag line was removed */
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
@@ -1832,7 +1835,7 @@ function mkCard(t,done){
       const left=Math.max(0,Math.round((est-prog)*4)/4);
       inner+=`<div class="prog-top">
         <div class="prog-bar-bg"><div class="prog-bar-fill${progDone?" done":""}" style="width:${pct}%"></div></div>
-        <div class="prog-stat">${prog>0?`<span class="phrs">${prog}h</span>`:"0h"} / ${est}h${progDone?` <span class="done-c">✓ done</span>`:`· ${left}h left`}</div>
+        <div class="prog-stat">${prog>0?`<span class="phrs">${prog}h</span>`:"0h"} / ${est}h${progDone?` <span class="done-c">✓ done</span>`:` · ${left}h left`}</div>
       </div>`;
     }
     /* default row: the everyday actions only */
@@ -1909,7 +1912,7 @@ function render(){
   groups.forEach(({l,f})=>{
     const items=active.filter(f);
     if(!items.length) return;
-    const sep=document.createElement("div"); sep.className="gsep"; sep.textContent=l; tl.appendChild(sep);
+    const sep=document.createElement("div"); sep.className="gsep"; sep.innerHTML=`${esc(l)}<span class="gsep-n">${items.length}</span>`; tl.appendChild(sep);
     items.forEach(t=>tl.appendChild(mkCard(t,false)));
   });
 
