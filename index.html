@@ -614,9 +614,15 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 .card-top { flex-wrap: wrap; }
 .card-top > .prog-section { flex: 1 1 100%; min-width: 0; }
 .card-more { min-width: 0; }
+/* back-to-top button for the long page */
+#to-top { position: fixed; right: 22px; bottom: 22px; width: 42px; height: 42px; border-radius: 50%; background: var(--card); color: var(--muted); border: 1px solid var(--bord2); font-size: 1.15rem; line-height: 1; cursor: pointer; opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity .22s ease, transform .22s ease, background .15s ease, color .15s ease; box-shadow: 0 6px 20px rgba(0,0,0,.34); z-index: 500; }
+#to-top.show { opacity: 1; pointer-events: auto; transform: none; }
+#to-top:hover { background: var(--card2); color: var(--txt); border-color: #4a7abf; }
+@media print { #to-top { display: none !important; } }
 </style>
 </head>
 <body>
+<button id="to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top" aria-label="Back to top">↑</button>
 
 <!-- ═══ LOGIN GATE (cloud sync) ═══ -->
 <div id="login-ovl" class="login-ovl" hidden>
@@ -1045,7 +1051,7 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
-const BUILD="2026-11-13i-cardfix";   /* bump each deploy; logged to console so we can tell which code a device is running */
+const BUILD="2026-11-13j-backtop";   /* bump each deploy; logged to console so we can tell which code a device is running */
 function _diag(m){ try{ console.log("[plan]", m); }catch(e){} }  /* console-only now; the on-screen #diag line was removed */
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
@@ -3970,6 +3976,8 @@ window.planSeed=async function(obj){
 };
 _authBoot();
 setTimeout(()=>{ try{ _hideBoot(); }catch(e){} }, 8000);  /* safety net: never leave the loading shield stuck */
+/* back-to-top button: reveal after scrolling down a bit */
+window.addEventListener("scroll", ()=>{ const b=document.getElementById("to-top"); if(b) b.classList.toggle("show", window.scrollY>420); }, {passive:true});
 </script>
 </body>
 </html>
