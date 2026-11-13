@@ -573,6 +573,41 @@ summary:hover { color: var(--dim); }
 .sync-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--dim,#777); vertical-align:middle; margin-left:4px; }
 .sync-dot.ok{ background:#5c9e6e; }
 .sync-dot.bad{ background:#e0a05c; }
+
+/* ═══════════ REFINEMENT PASS — depth · hierarchy · motion (additive; layered last) ═══════════ */
+/* cards & panels get real separation from the dark background */
+.card { border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+.stat-card, .kit-section, .mon-grid, .day-schedule, .day-tasks-col { box-shadow: 0 2px 11px rgba(0,0,0,.16); }
+/* section headers: a small accent tick (plain labels only, never collapsible summaries) */
+.sec { color: var(--muted); }
+.sec:not(.sec-c) { display: flex; align-items: center; gap: 9px; }
+.sec:not(.sec-c)::before { content: ""; width: 3px; height: 13px; border-radius: 2px; background: #4a7abf; opacity: .85; flex: none; }
+/* crisper task titles */
+.ct { font-size: .86rem; letter-spacing: -.005em; line-height: 1.25; }
+/* progress bars: taller, gradient fill, inset track */
+.prog-bar-bg { height: 7px; background: var(--card2); box-shadow: inset 0 0 0 1px var(--line); }
+.prog-bar-fill { background: linear-gradient(90deg, #4a7abf, #6f9ede); }
+.prog-bar-fill.done { background: linear-gradient(90deg, #3a8a50, #54b074); }
+/* calendar: make "today" genuinely pop, lift event chips */
+.mon-cell.today { background: #4a7abf16; box-shadow: inset 0 0 0 1.5px #4a7abf40; }
+.mon-cell.today .mon-dn { background: #4a7abf; color: #fff; box-shadow: 0 1px 4px #4a7abf55; }
+.mon-ev-chip { box-shadow: 0 1px 1px rgba(0,0,0,.14); }
+/* checkbox hover affordance */
+.cb:hover { border-color: #4a7abf; }
+/* subtle press feedback on buttons */
+.qadd:active, .ft:active, .cvb:active, .task-tgl:active, .log-add:active, .more-toggle:active, .cal-nav-btn:active { transform: translateY(.5px); }
+/* themed slim scrollbars (desktop) */
+*::-webkit-scrollbar { width: 11px; height: 11px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--bord); border-radius: 8px; border: 3px solid var(--bg); }
+*::-webkit-scrollbar-thumb:hover { background: var(--bord2); }
+/* crisper title */
+h1 { letter-spacing: -.02em; }
+/* crisper text rendering on Mac + themed selection */
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+::selection { background: #4a7abf55; color: #fff; }
+/* respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; } }
 </style>
 </head>
 <body>
@@ -1003,7 +1038,7 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
-const BUILD="2026-11-13f-polish";   /* bump each deploy; logged to console so we can tell which code a device is running */
+const BUILD="2026-11-13g-refine";   /* bump each deploy; logged to console so we can tell which code a device is running */
 function _diag(m){ try{ console.log("[plan]", m); }catch(e){} }  /* console-only now; the on-screen #diag line was removed */
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
