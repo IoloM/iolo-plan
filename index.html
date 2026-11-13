@@ -68,7 +68,11 @@ body.theme-oled {
   --hi-bg:#0e1a0e; --hi-bord:#1c3a1c;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--txt); min-height: 100vh; padding: 20px 22px 60px; max-width: 1200px; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--txt); min-height: 100vh; padding: 22px 26px 72px; max-width: 1340px; margin-inline: auto; }
+/* ── wide-screen two-column main area: calendar | tasks (stacks on narrow) ── */
+.main-cols { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; margin-top: 4px; }
+.main-cols .mc-col { min-width: 0; }
+@media (min-width: 1040px){ .main-cols { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 28px; } }
 h1 { font-size: 1.2rem; font-weight: 800; color: var(--txt-strong); margin-bottom: 2px; }
 .subtitle { font-size: .73rem; color: var(--dim); margin-bottom: 18px; }
 .sec { font-size: .63rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--dim2); margin: 22px 0 9px; padding-bottom: 5px; border-bottom: 1px solid var(--line); }
@@ -592,11 +596,12 @@ summary:hover { color: var(--dim); }
 <h1>Iolo's Plan <span id="sync-dot" class="sync-dot" title="Cloud sync"></span></h1>
 <div class="subtitle" id="subtitle"></div>
 <div id="acct-bar" hidden><span id="acct-email"></span><span class="acct-out" onclick="planSignOut()">sign out</span></div>
-<div id="diag" style="font:11px ui-monospace,monospace;color:#e0a05c;padding:3px 0;white-space:pre-wrap;word-break:break-word"></div>
 <div id="setwk-box"></div>
 <div class="stats" id="stats-strip"></div>
 <div id="review-host"></div>
 
+<div class="main-cols">
+<div class="mc-col mc-cal">
 <!-- ═══ CALENDAR ═══ -->
 <div class="sec">Calendar</div>
 <div class="cal-toolbar">
@@ -653,7 +658,9 @@ summary:hover { color: var(--dim); }
   </div>
 </div>
 <div id="cal-content"></div>
+</div><!-- /mc-cal -->
 
+<div class="mc-col mc-tasks">
 <!-- ═══ TASKS ═══ -->
 <div class="sec">Tasks</div>
 <div class="fbar">
@@ -676,6 +683,8 @@ summary:hover { color: var(--dim); }
   </div>
 </div>
 <div class="task-list" id="tlist"></div>
+</div><!-- /mc-tasks -->
+</div><!-- /main-cols -->
 
 <!-- ═══ TESTS & REVISION ═══ -->
 <details id="tests-details" open>
@@ -985,8 +994,8 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
-const BUILD="2026-11-13d-inline";   /* bump each deploy; shown in #diag so we can tell which code a device is running */
-function _diag(m){ try{ const d=document.getElementById("diag"); if(d){ d.textContent=m; d.hidden=false; } }catch(e){} }
+const BUILD="2026-11-13e-layout";   /* bump each deploy; logged to console so we can tell which code a device is running */
+function _diag(m){ try{ console.log("[plan]", m); }catch(e){} }  /* console-only now; the on-screen #diag line was removed */
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
 if(/[?&]fresh\b/i.test(location.search)){ try{ localStorage.removeItem(MASTER); }catch(e){} try{ history.replaceState(null,"",location.pathname); }catch(e){} }
