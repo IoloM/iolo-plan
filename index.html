@@ -534,6 +534,7 @@ summary:hover { color: var(--dim); }
 }
 /* ── cloud sync: login overlay, account bar, sync dot ── */
 .login-ovl{ position:fixed; inset:0; z-index:4000; background:var(--bg,#0f0f13); display:flex; align-items:center; justify-content:center; padding:24px; }
+.login-ovl[hidden]{ display:none!important; }   /* [hidden] must beat the display:flex above */
 .login-card{ width:100%; max-width:340px; background:var(--card,#1a1a22); border:1px solid var(--line,#2a2a35); border-radius:16px; padding:28px 24px; text-align:center; box-shadow:0 12px 40px rgba(0,0,0,.4); }
 .login-logo{ font-size:2.2rem; margin-bottom:6px; }
 .login-card h2{ margin:0 0 4px; font-size:1.2rem; color:var(--txt-strong,#fff); }
@@ -545,6 +546,7 @@ summary:hover { color: var(--dim); }
 .login-ghost{ background:transparent; color:var(--muted,#9aa); border:1px solid var(--bord,#333)!important; }
 .login-msg{ margin-top:12px; font-size:.75rem; color:#e0a05c; min-height:1em; }
 #acct-bar{ display:flex; align-items:center; gap:10px; font-size:.68rem; color:var(--dim,#777); margin:-2px 0 10px; }
+#acct-bar[hidden]{ display:none!important; }
 .acct-out{ cursor:pointer; text-decoration:underline; }
 .acct-out:hover{ color:var(--txt,#eee); }
 .sync-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--dim,#777); vertical-align:middle; margin-left:4px; }
