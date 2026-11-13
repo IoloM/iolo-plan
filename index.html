@@ -976,6 +976,9 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
+/* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
+   (use when a device is stuck showing stale data). Only clears our own key. */
+if(/[?&]fresh\b/i.test(location.search)){ try{ localStorage.removeItem(MASTER); }catch(e){} try{ history.replaceState(null,"",location.pathname); }catch(e){} }
 /* ── Cloud sync via Supabase (replaces the old local /state server). The whole
    planner state is one private JSONB row keyed by the signed-in user. ── */
 const _cfg=window.PLAN_CONFIG||{};
