@@ -289,6 +289,16 @@ details[open] > .sec-c::before { transform: rotate(90deg); }
 .log-x { color: var(--faint); cursor: pointer; font-size: .8rem; padding: 0 3px; }
 .log-x:hover { color: var(--muted); }
 
+/* ── tidy button row ── */
+.prog-btns { gap: 5px; }
+.prog-btns .seg { display: inline-flex; align-items: stretch; border: 1px solid var(--bord); border-radius: 7px; overflow: hidden; }
+.prog-btns .seg .qadd { border: 0; border-right: 1px solid var(--bord); border-radius: 0; padding: 4px 10px; }
+.prog-btns .seg .qadd:last-child { border-right: 0; }
+.prog-btns .seg .qadd:hover { background: var(--card2); color: var(--txt); }
+/* focus = start a timer → subtle amber so it reads apart from logging */
+.qadd.focus { color: #c89a3c; border-color: #3e3618; background: #17140a; font-weight: 700; }
+.task-list .card:not(.done):hover { background: var(--card2); }
+
 /* ═══ FILTER TABS ═══ */
 .fbar { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
 .ft { font-size: .63rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; background: var(--card2); color: var(--dim); cursor: pointer; border: 1px solid var(--bord); transition: all .15s; user-select: none; }
@@ -296,6 +306,7 @@ details[open] > .sec-c::before { transform: rotate(90deg); }
 .ft.ga.ac { background: #0d1f14; color: #5c9e6e; border-color: #1a3a22; }
 .ft.su.ac { background: #1a1400; color: #d4aa30; border-color: #2a2200; }
 .ft.pk.ac { background: #1c1008; color: #e87c5c; border-color: #3a2010; }
+.ft-n { font-size: .58rem; font-weight: 800; opacity: .55; margin-left: 1px; }
 .gsep { font-size: .59rem; font-weight: 800; text-transform: uppercase; color: var(--faint); letter-spacing: .09em; margin: 10px 0 5px; padding-top: 8px; border-top: 1px solid var(--card2); }
 
 /* ═══ KIT LISTS ═══ */
@@ -345,6 +356,10 @@ details { margin-top: 20px; }
 summary { font-size: .63rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--faint); cursor: pointer; padding: 7px 0; border-top: 1px solid var(--card2); user-select: none; }
 summary:hover { color: var(--dim); }
 .empty { text-align: center; padding: 18px; color: var(--faint); font-size: .8rem; }
+.empty-done { padding: 30px 18px; }
+.empty-ic { width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: #0d1f14; color: #5c9e6e; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; border: 1px solid #1a3a22; }
+.empty-h { color: var(--muted); font-weight: 700; font-size: .9rem; margin-bottom: 3px; }
+.empty-s { color: var(--faint); font-size: .74rem; }
 .setwk { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin: 10px 0 14px; }
 .sw-head, .sw-row { display: grid; grid-template-columns: minmax(96px,1.4fr) 1fr 1fr 1fr; align-items: center; gap: 6px; }
 .sw-head { font-size: .58rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding-bottom: 5px; border-bottom: 1px solid var(--bord); }
@@ -488,7 +503,7 @@ summary:hover { color: var(--dim); }
 .review-sub { font-size: .64rem; color: var(--dim); margin-top: 3px; }
 
 /* ═══ FOCUS TIMER ═══ */
-.qadd.focus:hover { color: #d4aa30; border-color: #4a3f1a; }
+.qadd.focus:hover { color: #e4b84a; border-color: #5a4d20; background: #1e1a0c; }
 #focus-widget { display: none; position: fixed; bottom: 16px; left: 16px; z-index: 900; background: var(--card); border: 1px solid #4a3f1a; border-left: 4px solid #d4aa30; border-radius: 12px; padding: 11px 14px; box-shadow: 0 8px 28px rgba(0,0,0,.45); min-width: 210px; }
 #focus-widget.open { display: block; }
 .fw-task { font-size: .64rem; color: var(--muted); margin-bottom: 3px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -721,8 +736,8 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 <!-- ═══ TASKS ═══ -->
 <div class="sec">Tasks</div>
 <div class="fbar">
-  <div class="ft ac"  onclick="setF('all',this)">All</div>
-  <div class="ft pk"  onclick="setF('packing',this)">Packing</div>
+  <div class="ft ac"  onclick="setF('all',this)">All <span class="ft-n" id="ftn-all"></span></div>
+  <div class="ft pk"  onclick="setF('packing',this)">Packing <span class="ft-n" id="ftn-packing"></span></div>
   <div class="ft"     onclick="openAddTask()">+ Add</div>
 </div>
 <div id="add-task-form" style="display:none;background:var(--card);border-radius:9px;padding:12px;margin-bottom:8px;border:1px solid var(--bord2)">
@@ -1051,7 +1066,7 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
-const BUILD="2026-11-13l-backtop3";   /* bump each deploy; logged to console so we can tell which code a device is running */
+const BUILD="2026-11-13m-btnrow";   /* bump each deploy; logged to console so we can tell which code a device is running */
 function _diag(m){ try{ console.log("[plan]", m); }catch(e){} }  /* console-only now; the on-screen #diag line was removed */
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
@@ -1823,16 +1838,14 @@ function mkCard(t,done){
     /* default row: the everyday actions only */
     inner+=`<div class="prog-btns">`;
     if(est){
-      inner+=`<button class="qadd" onclick="quickAdd('${t.id}',0.5)">+30m</button>
-        <button class="qadd" onclick="quickAdd('${t.id}',1)">+1h</button>
-        <button class="qadd" onclick="quickAdd('${t.id}',2)">+2h</button>`;
+      inner+=`<span class="seg" title="log time on this task"><button class="qadd" onclick="quickAdd('${t.id}',0.5)">+30m</button><button class="qadd" onclick="quickAdd('${t.id}',1)">+1h</button><button class="qadd" onclick="quickAdd('${t.id}',2)">+2h</button></span>`;
     }
     inner+=`<button class="qadd focus" onclick="toggleFocusPick('${t.id}')">▶ focus</button>
       <span class="focus-pick" id="fp_${t.id}">
         <button class="qadd" onclick="startFocus('${t.id}',25)">25m</button>
         <button class="qadd" onclick="startFocus('${t.id}',50)">50m</button>
       </span>
-      <button class="more-toggle" onclick="toggleCardMore('${t.id}')" title="more actions">⋯</button>`;
+      <button class="more-toggle" onclick="toggleCardMore('${t.id}')" title="more actions" aria-label="more actions">⋯</button>`;
     /* everything else tucked away behind ⋯ */
     inner+=`<div class="card-more${moreOpen?" open":""}" id="cm_${t.id}">
       <button class="qadd" onclick="openPlan('${t.id}')">📅 plan a day</button>
@@ -1900,7 +1913,10 @@ function render(){
     items.forEach(t=>tl.appendChild(mkCard(t,false)));
   });
 
-  if(!active.length) tl.innerHTML='<div class="empty">All done!</div>';
+  if(!active.length) tl.innerHTML='<div class="empty empty-done"><div class="empty-ic">✓</div><div class="empty-h">All caught up</div><div class="empty-s">Nothing on your plate right now — nice work.</div></div>';
+  /* live counts on the filter tabs */
+  const _na=document.getElementById("ftn-all"); if(_na) _na.textContent=active.length||"";
+  const _np=document.getElementById("ftn-packing"); if(_np){ const n=active.filter(t=>t.g==="packing").length; _np.textContent=n||""; }
   applyFilter();
 
   const dl=document.getElementById("dlist");
