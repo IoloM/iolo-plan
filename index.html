@@ -608,6 +608,12 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 ::selection { background: #4a7abf55; color: #fff; }
 /* respect reduced-motion preference */
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; } }
+/* FIX: task-card progress/actions stack BELOW the title instead of competing for
+   horizontal space — stops the ⋯ "more" row from crushing the title in a narrow
+   column, and reads cleanly at any width. */
+.card-top { flex-wrap: wrap; }
+.card-top > .prog-section { flex: 1 1 100%; min-width: 0; }
+.card-more { min-width: 0; }
 </style>
 </head>
 <body>
@@ -1039,7 +1045,7 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
-const BUILD="2026-11-13h-today";   /* bump each deploy; logged to console so we can tell which code a device is running */
+const BUILD="2026-11-13i-cardfix";   /* bump each deploy; logged to console so we can tell which code a device is running */
 function _diag(m){ try{ console.log("[plan]", m); }catch(e){} }  /* console-only now; the on-screen #diag line was removed */
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
