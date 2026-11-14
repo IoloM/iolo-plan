@@ -318,6 +318,9 @@ details[open] > .sec-c::before { transform: rotate(90deg); }
 .kit-head:hover { background: var(--card2); border-radius: 8px; }
 .kit-title { font-size: .82rem; font-weight: 700; color: var(--txt); }
 .kit-count { font-size: .62rem; color: var(--dim); }
+.kit-count.full { color: #5c9e6e; font-weight: 700; }
+.kit-bar { height: 3px; background: var(--line); border-radius: 3px; margin: -2px 14px 4px; overflow: hidden; }
+.kit-bar i { display: block; height: 100%; width: 0; background: #5c9e6e; border-radius: 3px; transition: width .3s ease; }
 .kit-body  { display: none; padding: 0 14px 12px; }
 .kit-body.open { display: block; }
 .kit-cat  { font-size: .57rem; font-weight: 800; text-transform: uppercase; color: var(--dim); letter-spacing: .1em; margin: 11px 0 4px; display: flex; align-items: center; gap: 7px; }
@@ -1069,7 +1072,7 @@ const CUSTOM_KEY = "iolo_custom_tasks";
    (guarded — some webviews block it). The durable copy is ~/iolo-plan/state.json
    via the /state endpoint; newest timestamp wins on load. */
 const MASTER="iolo_plan_master";
-const BUILD="2026-11-13n-polish";   /* bump each deploy; logged to console so we can tell which code a device is running */
+const BUILD="2026-11-14a-kitbars";   /* bump each deploy; logged to console so we can tell which code a device is running */
 function _diag(m){ try{ console.log("[plan]", m); }catch(e){} }  /* console-only now; the on-screen #diag line was removed */
 /* ?fresh — discard THIS device's cached planner copy and reload clean from the cloud
    (use when a device is stuck showing stale data). Only clears our own key. */
@@ -2967,9 +2970,7 @@ window.kitTick=function(id){
   }
   const found=findInCustomLists(id);
   if(found){
-    const doneCt=found.list.items.filter(it=>k[it.id]).length;
-    const headCt=el&&el.closest(".kit-section")?.querySelector(".kit-count");
-    if(headCt) headCt.textContent=`${doneCt} / ${found.list.items.length} packed`;
+    _updateListCount(found.list);
     return;
   }
   kitCount(id.slice(0,2)); /* kz / ex — works for their custom ids too */
@@ -3160,14 +3161,18 @@ function _customBodyInner(list,k){
   return h;
 }
 function _customListHtml(list,k){
+  const total=list.items.length;
   const doneCt=list.items.filter(it=>k[it.id]).length;
+  const pct=total>0?Math.round(doneCt/total*100):0;
+  const full=total>0&&doneCt===total;
   return `<div class="kit-section" id="${list.id}-sec">
     <div class="kit-head" onclick="toggleKit('${list.id}')">
       <span class="kit-title">🏕️ ${esc(list.title)}</span>
-      <span class="kit-count" id="${list.id}-ct">${doneCt} / ${list.items.length} packed</span>
+      <span class="kit-count${full?' full':''}" id="${list.id}-ct">${full?'✓ all packed':doneCt+' / '+total+' packed'}</span>
       <span class="kit-done-btn" title="mark list done — moves to History (restore any time)" onclick="event.stopPropagation();archiveCustomList('${list.id}')">✓ done</span>
       <span class="kit-reset" title="clear all ticks" onclick="event.stopPropagation();resetListTicks('${list.id}')">⟲</span>
     </div>
+    <div class="kit-bar"><i id="${list.id}-bar" style="width:${pct}%"></i></div>
     <div class="kit-body" id="${list.id}-body">${_customBodyInner(list,k)}</div>
   </div>`;
 }
@@ -3179,8 +3184,13 @@ function refreshListBody(list){
 }
 function _updateListCount(list){
   const k=gk();
+  const total=list.items.length;
+  const done=list.items.filter(it=>k[it.id]).length;
+  const full=total>0&&done===total;
   const ctEl=document.getElementById(`${list.id}-ct`);
-  if(ctEl) ctEl.textContent=`${list.items.filter(it=>k[it.id]).length} / ${list.items.length} packed`;
+  if(ctEl){ ctEl.textContent=full?'✓ all packed':`${done} / ${total} packed`; ctEl.classList.toggle('full',full); }
+  const bar=document.getElementById(`${list.id}-bar`);
+  if(bar) bar.style.width=(total>0?Math.round(done/total*100):0)+'%';
 }
 window.onCatSelect=function(listId){
   const sel=document.getElementById(`cli-cat-${listId}`);
